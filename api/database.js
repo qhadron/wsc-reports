@@ -1,20 +1,44 @@
 const express = require('express');
 const router = express.Router();
+const db = require('../db.js');
 
 router.get('/:table/', (req, res) => {
-    const table = req.params.table;
-    console.log(`Requested ${table}`)
-    const params = req.query;
-    const STRING = 
-    `SELECT * FROM ${table} 
-        WHERE (${(_ => {
-            let res = "";
-            for (const item of params) {
-                res += `${item.key} = ${item.value}`;
-            }
-        })()})`;
-    res.write(STRING);
-    res.send();
+    (async function () {
+        const table = req.params.table;
+        console.log(`Requested ${table}`)
+        const params = req.query;
+        let query = (function () {
+            console.log("Params: ", params);
+            const condition = Object.keys(params)
+                    .map(key => `${key} = :${key}` )
+                    .join(' AND ');
+            const query = 
+            `SELECT * FROM HYDEX_3.${table} 
+                ${condition.length ? 'WHERE' : ''} ${condition}`;
+            return query;
+        })();
+        const args = Object.keys(params).map(key => params[key]);
+        console.log("Waiting for connection...");
+        const conn = await (await db).getConnection();
+        
+        try {
+            console.log("Connected, executing query: \n", query, args);
+            
+            const queryReturn = await conn.execute(query, args);
+            console.log("Got back ", queryReturn);
+            res.writeHead(200, {"Content-Type": "application/json"});
+            res.write(JSON.stringify(queryReturn));
+        } catch(err) {
+            const msg = `Error in query: ${err.msg}`;
+            console.error(msg, err);
+            res.writeHead(500, {"Content-Type": "text/html"});
+            res.write(msg);
+         } finally {
+            console.log("Closing connection...");
+            conn.close();
+         }
+        res.send();
+   })().catch(err => console.error(err));
 });
 
 router.use('/', (req, res) => {
