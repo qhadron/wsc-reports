@@ -59,3 +59,9 @@ typings/
 
 # generated files
 static/js/*.js
+
+#dbconfig
+**/dbconfig.js
+
+#swap files
+**/*~
