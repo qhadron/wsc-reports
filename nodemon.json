@@ -1,0 +1,12 @@
+{
+    "ignore": [
+        ".git",
+        "node_modules/**/node_modules",
+        "static",
+        "react",
+        "build",
+        "nodemon.json",
+        "api"
+    ],
+    "verbose": true
+}
