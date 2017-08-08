@@ -6,6 +6,11 @@
   "dependencies": {
     "babelify": "^7.3.0",
     "body-parser": "^1.17.2",
+    "cross-env": "^5.0.3",
+    "http-proxy": "^1.16.2",
+    "minimist": "^1.2.0",
+    "morgan": "^1.8.2",
+    "npm-run-all": "^4.0.2",
     "oracledb": "^1.13.1",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
@@ -14,16 +19,20 @@
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.24.1",
-    "concurrently": "^3.5.0",
+    "babel-preset-stage-2": "^6.24.1",
     "nodemon": "^1.11.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js",
-    "watch": "node build/build.js",
-    "start-dev": "nodemon --inspect server.js",
-    "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run watch\""
+    "start": "npm-run-all -s js-build -p start-react-prod start-prod-server",
+    "dev": "npm-run-all -p js-watch start-react-dev start-dev-server",
+    "js-build": "cross-env NODE_ENV=production node build/build.js",
+    "js-watch": "cross-env NODE_ENV=development node build/build.js",
+    "start-prod-server": "cross-env NODE_ENV=production node server.js",
+    "start-dev-server": "cross-env NODE_ENV=development nodemon --inspect server.js",
+    "start-react-prod": "node build/run-react.js build",
+    "start-react-dev": "node build/run-react.js start",
+    "postinstall": "cd ./react && npm install"
   },
   "repository": {
     "type": "git",

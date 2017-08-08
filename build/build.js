@@ -19,7 +19,10 @@ function package(file) {
             .pipe(fs.createWriteStream(dest));
     }
 
-    b.on('update', bundle);
+    if (process.env.NODE_ENV === "development") {
+        console.log("Watching for changes in ", file);
+        b.on('update', bundle);
+    }
     b.on('log', msg => {
         console.log(msg);
     });
