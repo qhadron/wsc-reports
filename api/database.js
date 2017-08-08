@@ -29,7 +29,7 @@ router.get('/:table/', (req, res) => {
             res.writeHead(200, {"Content-Type": "application/json"});
             res.write(JSON.stringify(queryReturn));
         } catch(err) {
-            const msg = `Error in query: ${err.msg}`;
+            const msg = `Error in query: ${err}`;
             console.error(msg, err);
             res.writeHead(500, {"Content-Type": "text/html"});
             res.write(msg);
