@@ -2,6 +2,23 @@ const fs = require('fs');
 const browserify = require('browserify');
 const watchify = require('watchify');
 
+const IS_DEV = process.env.NODE_ENV === "development";
+
+const plugins = [];
+if (IS_DEV) {
+    plugins.push(watchify);
+}
+
+const browserifyConfig = {
+    cache: {},
+    packageCache: {},
+    plugin: plugins
+};
+
+if (IS_DEV) {
+    Object.assign(browserifyConfig, {debug: true});
+}
+
 fs.readdir('js/', (err, items) => {
     items = items.filter(str => /\.js$/.exec(str));
     console.log('Found js files: ', items);
@@ -9,13 +26,25 @@ fs.readdir('js/', (err, items) => {
 });
 
 function package(file) {
-    const b = browserify(file, {cache: {}, packageCache: {}, plugin: [watchify], debug: true});
+    const b = browserify(file, browserifyConfig);
     const dest = `static/${file}`;
 
     function bundle() {
         console.log("Writing to ", dest);
-        b.transform('babelify', {presets: ["es2015"]})
+        b
+            .transform('babelify')
             .bundle()
+            .on('error', err => {
+                const {
+                    filename,
+                    loc: {
+                        line,
+                        column
+                    },
+                    codeFrame
+                } = err;
+                console.error(`Error in file ${filename}:${line}:${column}`, err.codeFrame);
+            })
             .pipe(fs.createWriteStream(dest));
     }
 

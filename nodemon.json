@@ -2,11 +2,11 @@
     "ignore": [
         ".git",
         "node_modules/**/node_modules",
-        "static",
-        "react",
-        "build",
+        "static/",
+        "ui/",
+        "build/",
         "nodemon.json",
-        "api"
+        "js/"
     ],
     "verbose": true
 }

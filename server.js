@@ -1,5 +1,5 @@
 const app = require('./app'),
-    router=  require('./routes.js'),
+    router = require('./routes.js'),
     db = require('./db.js');
 const port = process.env.PORT || 3000;
 

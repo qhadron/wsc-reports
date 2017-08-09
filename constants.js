@@ -1,5 +1,5 @@
 module.exports = {
-    REACT_PATH: './react',
-    REACT_PORT: 3001,
-    REACT_UI_PORT: 3002
+    UI_PATH: './ui',
+    UI_PORT: 3001,
+    UI_DEBUG_PORT: 3002
 };

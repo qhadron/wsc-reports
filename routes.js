@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-const {REACT_PORT} = require('./constants');
+const {UI_PORT} = require('./constants');
 const httpProxy = require('http-proxy');
 const proxy = httpProxy.createProxyServer();
 const morgan = require('morgan');
+const compression = require('compression');
 
 const logger = (() => {
     switch (process.env.NODE_ENV) {
@@ -24,9 +25,15 @@ const logger = (() => {
     }
 })();
 
+// logger
 router.use(logger);
+
+// body parser
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({extended: true}));
+
+// compress responses
+router.use(compression());
 
 router.use('/api/:file', (req, res) => {
     let filepath = `./api/${req.params.file}`;
@@ -43,7 +50,7 @@ if (process.env.NODE_ENV === "development") {
 proxy.on('error', (err, req, res) => {});
 router.use((req, res, next) => {
     proxy.web(req, res, {
-        target: `http://localhost:${REACT_PORT}`
+        target: `http://localhost:${UI_PORT}`
     }, (err) => {
         console.log("Got proxy error: ", err);
         next();
