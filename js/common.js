@@ -36,7 +36,17 @@ function sendJSON(url, obj, options = {}) {
  * @param {*} conditions  Key value pairs that all must be true
  */
 function queryDatabase(tablename, conditions) {
-    return sendJSON(new URL(`/api/database/${tablename.toUpperCase()}`, window.location), conditions);
+    const url = new URL(`/api/database/${tablename.toUpperCase()}`, window.location);
+    return sendJSON(url, conditions)
+        .then(res => res.json())
+        .then(res => {
+            if (typeof res.rows !== 'undefined') {
+                res.rows = res
+                    .rows
+                    .filter(x => x.length);
+            }
+            return res;
+        });
 }
 
 export default {

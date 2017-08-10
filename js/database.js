@@ -19,10 +19,6 @@ function doQuery() {
     }
     lib
         .queryDatabase(databaseName, params)
-        .then(res => {
-            // res     .clone()     .text()     .then(console.log);
-            return res.json();
-        })
         .catch(err => JSON.stringify(err, ['message', 'arguments', 'type', 'name']))
         .then(res => {
             display(output, res)
@@ -32,8 +28,8 @@ function doQuery() {
 function display(output, data) {
     try {
         const table = document.createElement('table');
-        const thead = table.createTHead();
         {
+            const thead = table.createTHead();
             const row = thead.insertRow();
             data
                 .metaData
@@ -44,10 +40,11 @@ function display(output, data) {
                 });
         }
         {
+            const tbody = table.createTBody();
             data
                 .rows
                 .forEach(src => {
-                    const row = table.insertRow();
+                    const row = tbody.insertRow();
                     for (let i = 0; i < src.length; ++i) {
                         const cell = row.insertCell();
                         // this is probably an image, display it as such
@@ -61,12 +58,17 @@ function display(output, data) {
                             cell.innerHTML = src[i];
                         }
                     }
-                    src.forEach(entry => {
-                        row
-                            .insertCell()
-                            .textContent = entry;
-                    });
-                })
+                });
+            if (data.rows.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = table
+                    .querySelector('thead')
+                    .firstElementChild
+                    .childElementCount;
+                cell.textContent = "No data exist for the given parameters";
+            }
+
         }
         output.innerHTML = "";
         output.appendChild(table);
