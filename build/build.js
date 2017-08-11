@@ -22,10 +22,10 @@ if (IS_DEV) {
 fs.readdir('js/', (err, items) => {
     items = items.filter(str => /\.js$/.exec(str));
     console.log('Found js files: ', items);
-    items.forEach(file => package(`js/${file}`));
+    items.forEach(file => build(`js/${file}`));
 });
 
-function package(file) {
+function build(file) {
     const b = browserify(file, browserifyConfig);
     const dest = `static/${file}`;
 
@@ -43,7 +43,7 @@ function package(file) {
                     },
                     codeFrame
                 } = err;
-                console.error(`Error in file ${filename}:${line}:${column}`, err.codeFrame);
+                console.error(`Error in file ${filename}:${line}:${column}`, codeFrame);
             })
             .pipe(fs.createWriteStream(dest));
     }

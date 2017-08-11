@@ -6,7 +6,7 @@
         "ui/",
         "build/",
         "nodemon.json",
-        "api/cache/",
+        "api/database/cache",
         "js/"
     ],
     "verbose": true

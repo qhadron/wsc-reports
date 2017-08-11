@@ -6,7 +6,7 @@ oracledb.fetchAsBuffer = [];
 
 console.log("Creating pool...");
 const connectionPool = oracledb
-    .createPool({user: dbConfig.user, password: dbConfig.password, connectString: dbConfig.connectString})
+    .createPool({user: dbConfig.user, password: dbConfig.password, connectString: dbConfig.connectString, queueRequests: true, _enableStats: true})
     .catch(err => {
         console.error(`Failed to create db connection: ${err}`);
         throw err;

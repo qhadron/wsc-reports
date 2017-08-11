@@ -6,7 +6,7 @@
  * @param {} obj Key value pairs sent to server
  * @param {*} options Options to pass to fetch
  */
-function sendJSON(url, obj, options = {}) {
+export function sendJSON(url, obj, options = {}) {
     if (!options['Content-Type']) {
         options['Content-Type'] = 'application/json';
     }
@@ -35,7 +35,7 @@ function sendJSON(url, obj, options = {}) {
  * @param {string} tablename Name of table to query
  * @param {*} conditions  Key value pairs that all must be true
  */
-function queryDatabase(tablename, conditions) {
+export function queryDatabase(tablename, conditions) {
     const url = new URL(`/api/database/${tablename.toUpperCase()}`, window.location);
     return sendJSON(url, conditions)
         .then(res => res.json())

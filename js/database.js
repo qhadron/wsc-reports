@@ -26,6 +26,7 @@ function doQuery() {
 }
 
 function display(output, data) {
+    let error;
     try {
         const table = document.createElement('table');
         {
@@ -70,11 +71,24 @@ function display(output, data) {
             }
 
         }
+        error = data.error;
         output.innerHTML = "";
         output.appendChild(table);
     } catch (err) {
-        output.textContent = JSON.stringify(data);
-        console.error(err);
+        error = err;
+    }
+    if (error) {
+        const div = document.createElement('div');
+        div
+            .classList
+            .add('error');
+        div.innerHTML = `<span>There was an error while executing your query: 
+            <code>
+                    ${JSON.stringify(error)}
+                    <kcode>
+                </span>`;
+        output.insertBefore(div, output.firstChild);
+        console.error(error);
     }
 }
 

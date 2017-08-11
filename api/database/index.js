@@ -1,21 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db.js');
-const oracle = require('oracledb');
-const base64 = require('base64-stream');
-const toString = require('stream-to-string');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-const tmpFile = require('tmp-promise');
-const CACHE_ROOT = path.resolve(__dirname, 'cache');
+const db = require('../../db');
 const now = require('performance-now');
+const fileType = require('file-type');
+const {
+    PassThrough
+} = require('stream');
 
 const ResultSetToJsonStream = require('./lib/ResultSetToJsonStream');
 const cache = require('./lib/cache');
 
 function createUrlFromKey(base, key) {
     return `${base}/_static/${key}`;
+}
+
+function handleError(req, res, err) {
+    console.error(err);
+    res.status(err.status || 500);
+    res.write(JSON.stringify(err.message));
+    res.send();
 }
 
 function buildQuery(table, params) {
@@ -32,37 +35,51 @@ function buildQuery(table, params) {
     const args = Object
         .keys(params)
         .map(key => params[key]);
-    return {query, args};
+    return {
+        query,
+        args
+    };
 }
 
 router.get('/_static/:key([0-9a-z\-]+)$', (req, res, next) => {
     (async() => {
 
-        const fileid = req.params.key;
-        console.log(`Requesting file ${fileid}`);
+        const key = req.params.key;
+        console.log(`Requesting file ${key}`);
 
-        if (!cache.has(fileid)) {
+        if (!cache.has(key)) {
             console.log(`File not found...`);
             return next();
         }
-        console.log(`Waiting for reading ${path}`);
+        console.log(`Waiting for reading ${key}`);
         const stream = await cache.get(key);
 
-        res.writeHead(200, {
-            'Content-Length': fs
-                .statSync(path)
-                .size
-        });
+        if (!stream) {
+            throw Error(`Key not found`);
+        }
 
-        console.log(`Reading ${path}`);
+        res.status(200);
+
+        console.log(`Reading ${key}`);
         const startTime = now();
+        // listen for first chunk of file data to get filetype
+        const dupe = stream.pipe(new PassThrough());
 
-        readStream
+        function ondata(chunk) {
+            const result = fileType(chunk);
+            if (!result)
+                return;
+            console.log(`Type of ${key} is ${result.mime}`);
+            res.setHeader('Content-Type', result.mime);
+            res.setHeader('Content-Disposition', `inline; filename=${key}.${result.ext}`);
+        };
+        dupe.once('data', ondata);
+        stream
             .pipe(res)
             .on('finish', () => {
-                console.log(`Read ${path} in ${now() - startTime}ms`)
+                console.log(`Read ${key} in ${now() - startTime}ms`)
             });
-    })();
+    })().catch(err => handleError(req, res, err));
 });
 
 router.get('/:table/', (req, res) => {
@@ -70,39 +87,58 @@ router.get('/:table/', (req, res) => {
         const table = req.params.table;
         console.log(`Requested ${table}`)
         const params = req.query;
-        let {query, args} = buildQuery(table, params);
+        let {
+            query,
+            args
+        } = buildQuery(table, params);
         let conn;
         res.setHeader('Content-Type', 'application/json');
         try {
             console.log("Waiting for connection...");
-            conn = await(await db).getConnection();
+            const pool = await db;
+            conn = await pool.getConnection();
         } catch (err) {
-            res.write(JSON.stringify({error: err}));
-            console.error(err);
-            res.send();
-            return;
+            return handleError(req, res, err);
         }
 
+        let result;
+        console.log("Connected, executing query: \n", query, args);
+        const queryStart = now();
         try {
-            console.log("Connected, executing query: \n", query, args);
-
-            const result = await conn.execute(query, args, {
+            result = await conn.execute(query, args, {
                 resultSet: true,
                 extendedMetaData: true
             });
-
-            new ResultSetToJsonStream(result.resultSet, cache, createUrlFromKey.bind(req.baseUrl))
-                .pipe(res)
-                .on('close', () => conn.close());
         } catch (err) {
-            const msg = `Error in query: ${err}`;
-            console.error(msg, err);
-            res.write(msg);
-            res.send();
-            console.log("Closing connection...");
             conn.close();
+            err.message = `Error in query: ${err}`;
+            handleError(req, res, err);
         }
-    })().catch(err => console.error(err));
+
+        const outStream = new ResultSetToJsonStream(result.resultSet, cache, createUrlFromKey.bind(null, req.baseUrl), () => {
+            console.log(`Finished reading all query data in ${now() - queryStart}ms`);
+            conn.close();
+        });
+        outStream.on('error', err => {
+            console.error(err);
+            err = Object.assign(err, {
+                message: `Error writing stream :${err}`
+            });
+            // try to fix json format
+            res.write(`], "error":`);
+            res.write(JSON.stringify(err.message));
+            res.write(`, "error_raw":`);
+            res.write(JSON.stringify(Object.assign({}, err)));
+            res.write(`}`);
+
+            res.status(500);
+            res.send();
+        });
+        outStream.pipe(res);
+        res.on('finish', () => {
+            console.log(`Finished executing and parsing query in ${now() - queryStart}ms`);
+        });
+    })().catch(err => handleError(req, res, err));
 });
 
 router.use('/', (req, res) => {

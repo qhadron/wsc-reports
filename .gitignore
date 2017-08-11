@@ -67,4 +67,4 @@ static/js/*.js
 **/*~
 
 # cache files
-api/cache/
+**/cache/
