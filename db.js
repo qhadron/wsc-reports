@@ -11,4 +11,5 @@ const connectionPool = oracledb
         console.error(`Failed to create db connection: ${err}`);
         throw err;
     });
+connectionPool.then(() => console.log('Pool created'));
 module.exports = connectionPool;
