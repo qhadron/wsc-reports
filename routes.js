@@ -48,13 +48,12 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // proxy for react
-proxy.on('error', (err, req, res) => {});
-router.use((req, res, next) => {
+router.use((req, res) => {
     proxy.web(req, res, {
         target: `http://localhost:${UI_PORT}`
     }, (err) => {
         console.log("Got proxy error: ", err);
-        res.sendStatus(500);
+        res.sendStatus(502);
     });
 });
 

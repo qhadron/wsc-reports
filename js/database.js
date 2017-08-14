@@ -5,28 +5,39 @@ const name = document.getElementById('name');
 const conditions = document.getElementById('conditions');
 const button = document.querySelector('button');
 const output = document.querySelector('.output');
+const statement = document.getElementById('statement');
 
 function doQuery() {
-    const databaseName = name
-        .value
-        .toUpperCase();
-    let params;
-    try {
-        params = JSON.parse(conditions.value || '{}');
-    } catch (err) {
-        output.textContent = err;
-        return;
+    let result;
+    if (statement.value) {
+        result = lib.queryDatabaseSql(statement.value);
+    } else {
+        const databaseName = name
+            .value
+            .toUpperCase();
+        let params;
+        try {
+            params = JSON.parse(conditions.value || '{}');
+        } catch (err) {
+            output.textContent = err;
+            return;
+        }
+        result = lib
+            .queryDatabaseTable(databaseName, params)
+            .catch(err => JSON.stringify(err, ['message', 'arguments', 'type', 'name']))
     }
-    lib
-        .queryDatabase(databaseName, params)
-        .catch(err => JSON.stringify(err, ['message', 'arguments', 'type', 'name']))
-        .then(res => {
-            display(output, res)
-        });
+    result.then(res => {
+        display(output, res)
+    });
 }
 
 function display(output, data) {
-    let error;
+    // clear output
+    output.innerHTML = "";
+
+    if (data.error) {
+        addError(data.error);
+    }
     try {
         const table = document.createElement('table');
         {
@@ -54,6 +65,15 @@ function display(output, data) {
                             const url = `${src[i]}`;
                             row[i] = '';
                             img.src = url;
+                            img.addEventListener('error', () => {
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.textContent = `Click here`;
+                                a.target = `_blank`;
+                                img
+                                    .parentElement
+                                    .replaceChild(a, img);
+                            });
                             cell.appendChild(img);
                         } else {
                             cell.innerHTML = src[i];
@@ -71,25 +91,24 @@ function display(output, data) {
             }
 
         }
-        error = data.error;
-        output.innerHTML = "";
         output.appendChild(table);
     } catch (err) {
-        error = err;
+        addError(err.message);
     }
-    if (error) {
-        const div = document.createElement('div');
-        div
-            .classList
-            .add('error');
-        div.innerHTML = `<span>There was an error while executing your query: 
-            <code>
-                    ${JSON.stringify(error)}
-                    <kcode>
-                </span>`;
-        output.insertBefore(div, output.firstChild);
-        console.error(error);
-    }
+}
+
+function addError(message) {
+    const div = document.createElement('div');
+    div
+        .classList
+        .add('error');
+    div.innerHTML = `<span>
+        There was an error while executing your query: 
+        <code>
+                ${message}
+        </code>
+    </span>`;
+    return output.insertBefore(div, output.firstChild);
 }
 
 button.addEventListener('click', doQuery);

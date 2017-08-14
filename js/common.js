@@ -30,15 +30,9 @@ export function sendJSON(url, obj, options = {}) {
     return fetch(url, options);
 }
 
-/**
- *
- * @param {string} tablename Name of table to query
- * @param {*} conditions  Key value pairs that all must be true
- */
-export function queryDatabase(tablename, conditions) {
-    const url = new URL(`/api/database/${tablename.toUpperCase()}`, window.location);
-    return sendJSON(url, conditions)
-        .then(res => res.json())
+function processDatabaseReturn(res) {
+    return res
+        .json()
         .then(res => {
             if (typeof res.rows !== 'undefined') {
                 res.rows = res
@@ -49,7 +43,27 @@ export function queryDatabase(tablename, conditions) {
         });
 }
 
+/**
+ *
+ * @param {string} tablename Name of table to query
+ * @param {*} conditions  Key value pairs that all must be true
+ */
+export function queryDatabaseTable(tablename, conditions) {
+    const url = new URL(`/api/database/${tablename.toUpperCase()}`, window.location);
+    return sendJSON(url, conditions).then(processDatabaseReturn);
+}
+
+/**
+ *
+ * @param {string} statement
+ */
+export function queryDatabaseSql(statement) {
+    const url = new URL(`/api/database/__querystring`, window.location);
+    return sendJSON(url, {queryString: statement}).then(processDatabaseReturn);
+}
+
 export default {
     sendJSON,
-    queryDatabase
+    queryDatabaseSql,
+    queryDatabaseTable
 };

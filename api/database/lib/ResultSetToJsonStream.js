@@ -2,7 +2,8 @@ const {Readable} = require('stream');
 const crypto = require('crypto');
 const oracledb = require('oracledb');
 
-const MAX_RESULT_COUNT = 10;
+// const MAX_RESULT_COUNT = 10;
+const MAX_RESULT_COUNT = Number.POSITIVE_INFINITY;
 
 /**
  *
@@ -49,6 +50,10 @@ module.exports = class ResultSetToJsonStream extends Readable {
 
     _fetch() {
         const fetchCount = Math.min(this._max - this._processedRows, oracledb.maxRows || 100);
+        if (fetchCount <= 0) {
+            this._fetchedAll = true;
+            return this._read();
+        }
         this
             ._resultSet
             .getRows(fetchCount)

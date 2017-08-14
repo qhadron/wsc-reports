@@ -68,3 +68,6 @@ static/js/*.js
 
 # cache files
 **/cache/
+
+# server configuration
+serverconfig.js

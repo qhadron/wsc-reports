@@ -27,14 +27,15 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm-run-all -s js-build -p start-react-prod start-prod-server",
-    "dev": "npm-run-all -p js-watch start-react-dev start-dev-server",
+    "start": "npm-run-all -s js-build -p start-ui-prod start-server-prod",
+    "dev": "npm-run-all -p js-watch start-ui-dev start-server-dev",
     "js-build": "cross-env NODE_ENV=production nodemon -w build/build.js -i [] build/build.js",
     "js-watch": "cross-env NODE_ENV=development nodemon -w build/build.js -i [] build/build.js",
-    "start-prod-server": "cross-env NODE_ENV=production node server.js",
-    "start-dev-server": "cross-env NODE_ENV=development nodemon --inspect server.js",
-    "start-react-prod": "node build/run-react.js build",
-    "start-react-dev": "node build/run-react.js start"
+    "start-server-prod": "cross-env NODE_ENV=production node server.js",
+    "start-server-dev": "cross-env NODE_ENV=development nodemon --inspect server.js",
+    "start-ui-prod": "node build/run-ui.js build",
+    "start-ui-dev": "node build/run-ui.js develop",
+    "postinstall": "cd ui && npm install"
   },
   "repository": {
     "type": "git",

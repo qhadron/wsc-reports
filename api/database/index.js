@@ -3,9 +3,7 @@ const router = express.Router();
 const db = require('../../db');
 const now = require('performance-now');
 const fileType = require('file-type');
-const {
-    PassThrough
-} = require('stream');
+const {PassThrough} = require('stream');
 
 const ResultSetToJsonStream = require('./lib/ResultSetToJsonStream');
 const cache = require('./lib/cache');
@@ -17,28 +15,29 @@ function createUrlFromKey(base, key) {
 function handleError(req, res, err) {
     console.error(err);
     res.status(err.status || 500);
-    res.write(JSON.stringify(err.message));
+    res.write(JSON.stringify({error: err.message}));
     res.send();
 }
 
 function buildQuery(table, params) {
-    const condition = Object
-        .keys(params)
-        .sort()
-        .map(key => `${key} = :${key}`)
-        .join(' AND ');
-    let query = `SELECT * FROM HYDEX_3.${table}`;
-    if (condition.length > 0) {
-        query += ' WHERE ' + condition;
-    }
+    if (table == '__querystring' && params.queryString) {
+        return {query: params.queryString, args: []};
+    } else {
+        const condition = Object
+            .keys(params)
+            .sort()
+            .map(key => `${key} = :${key}`)
+            .join(' AND ');
+        let query = `SELECT * FROM HYDEX_3.${table}`;
+        if (condition.length > 0) {
+            query += ' WHERE ' + condition;
+        }
 
-    const args = Object
-        .keys(params)
-        .map(key => params[key]);
-    return {
-        query,
-        args
-    };
+        const args = Object
+            .keys(params)
+            .map(key => params[key]);
+        return {query, args};
+    }
 }
 
 router.get('/_static/:key([0-9a-z\-]+)$', (req, res, next) => {
@@ -67,7 +66,7 @@ router.get('/_static/:key([0-9a-z\-]+)$', (req, res, next) => {
 
         function ondata(chunk) {
             const result = fileType(chunk);
-            if (!result)
+            if (!result) 
                 return;
             console.log(`Type of ${key} is ${result.mime}`);
             res.setHeader('Content-Type', result.mime);
@@ -87,10 +86,7 @@ router.get('/:table/', (req, res) => {
         const table = req.params.table;
         console.log(`Requested ${table}`)
         const params = req.query;
-        let {
-            query,
-            args
-        } = buildQuery(table, params);
+        let {query, args} = buildQuery(table, params);
         let conn;
         res.setHeader('Content-Type', 'application/json');
         try {
@@ -121,9 +117,7 @@ router.get('/:table/', (req, res) => {
         });
         outStream.on('error', err => {
             console.error(err);
-            err = Object.assign(err, {
-                message: `Error writing stream :${err}`
-            });
+            err = Object.assign(err, {message: `Error writing stream :${err}`});
             // try to fix json format
             res.write(`], "error":`);
             res.write(JSON.stringify(err.message));
