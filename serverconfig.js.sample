@@ -1,0 +1,4 @@
+module.exports = {
+    ssl_key_path: `path_to_ssl.key`,
+    ssl_cert_path: `path_to_ssl.crt`
+}
