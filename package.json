@@ -22,6 +22,7 @@
   "devDependencies": {
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
+    "eslint": "^4.4.1",
     "nodemon": "^1.11.0"
   },
   "scripts": {
@@ -33,8 +34,7 @@
     "start-prod-server": "cross-env NODE_ENV=production node server.js",
     "start-dev-server": "cross-env NODE_ENV=development nodemon --inspect server.js",
     "start-react-prod": "node build/run-react.js build",
-    "start-react-dev": "node build/run-react.js start",
-    "postinstall": "cd ./react && npm install"
+    "start-react-dev": "node build/run-react.js start"
   },
   "repository": {
     "type": "git",
