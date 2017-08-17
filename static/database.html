@@ -99,7 +99,6 @@
 </head>
 
 <body>
-
     <div><label>Table Name</label><input type="text" id="name"></div>
     <div>
         <label for="conditions">Conditions</label>
@@ -108,7 +107,8 @@
     <hr>
     <div><label>SQL Statement</label><textarea id="statement"></textarea></div>
     <div>
-        <button>Query</button>
+        <button id="query">Query</button>
+        <button id="csv">Download As CSV</button>
     </div>
     <content class="output"></content>
     <script src="js/database.js"></script>

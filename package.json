@@ -2,13 +2,14 @@
   "name": "wsc-reports",
   "version": "1.0.0",
   "description": "Api for report section",
-  "main": "index.js",
+  "main": "server.js",
   "dependencies": {
     "babelify": "^7.3.0",
     "body-parser": "^1.17.2",
     "compression": "^1.7.0",
     "cross-env": "^5.0.5",
     "express": "^4.15.4",
+    "file-saver": "^1.3.3",
     "file-type": "^5.2.0",
     "http-proxy": "^1.16.2",
     "minimist": "^1.2.0",
@@ -27,15 +28,16 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm-run-all -s js-build -p start-ui-prod start-server-prod",
+    "prod": "npm-run-all -p js-build start-ui-prod start-server-prod",
     "dev": "npm-run-all -p js-watch start-ui-dev start-server-dev",
-    "js-build": "cross-env NODE_ENV=production nodemon -w build/build.js -i [] build/build.js",
+    "js-build": "cross-env NODE_ENV=production node build/build.js",
     "js-watch": "cross-env NODE_ENV=development nodemon -w build/build.js -i [] build/build.js",
     "start-server-prod": "cross-env NODE_ENV=production node server.js",
     "start-server-dev": "cross-env NODE_ENV=development nodemon --inspect server.js",
-    "start-ui-prod": "node build/run-ui.js build",
-    "start-ui-dev": "node build/run-ui.js develop",
-    "postinstall": "cd ui && npm install"
+    "start-ui-prod": "cross-env NODE_ENV=production node build/run-ui.js ",
+    "start-ui-dev": "cross-env NODE_ENV=development node build/run-ui.js ",
+    "postinstall": "cd ui && npm install",
+    "start": "npm-rul-all prod"
   },
   "repository": {
     "type": "git",

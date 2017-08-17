@@ -1,20 +1,19 @@
-const argv = require('minimist')(process.argv.slice(2));
 const runAll = require('npm-run-all');
+const {UI_PORT, UI_PATH} = require('../constants');
+const express = require('express');
+const cp = require('child_process');
+const path = require('path');
 
-const UI_DIR = './ui';
+process.chdir(UI_PATH);
 
-process.chdir(UI_DIR);
+let commands;
 
-// run server
-function runscript(args, options) {
-    runAll(args, Object.assign({
-        stdin: process.stdin,
-        stdout: process.stdout,
-        stderr: process.stderr
-    }, options));
+if (process.env.NODE_ENV === "development") {
+    commands = [`develop -- -p ${UI_PORT}`];
+} else {
+    commands = ['build', `serve -- -p ${UI_PORT}`];
 }
 
-let options = Object.assign({}, argv, {_: undefined});
-argv
-    ._
-    .forEach(runscript, options);
+runAll(commands, {stdout: process.stdout}).then(() => {
+    console.log(`ui server started`);
+});

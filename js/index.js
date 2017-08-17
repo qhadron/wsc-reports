@@ -1,4 +1,4 @@
-import lib from './common';
+import lib from './lib/common';
 console.log(lib);
 
 const ta = document.querySelector('textarea');
