@@ -1,15 +1,20 @@
 import lib from './lib/common';
-import {
-    DB_TYPES
-} from './lib/oracle';
+import {DB_TYPES} from './lib/oracle';
 import FileSaver from 'file-saver';
+
+/*global ace*/
 
 const name = document.getElementById('name');
 const conditions = document.getElementById('conditions');
 const queryButton = document.querySelector('#query');
 const csvButton = document.querySelector('#csv');
 const output = document.querySelector('.output');
-const statement = document.getElementById('statement');
+const statement = ace.edit(document.getElementById('statement'));
+
+statement
+    .session
+    .setMode("ace/mode/sql");
+statement.setOption('wrap', 'free');
 
 let queryData = null;
 
@@ -36,7 +41,8 @@ function updateCsvStatus() {
 }
 
 function formatAsTable(data) {
-    if (!data) return;
+    if (!data) 
+        return;
     const table = document.createElement('table');
     // header
     {
@@ -44,9 +50,7 @@ function formatAsTable(data) {
         const row = thead.insertRow();
         data
             .metaData
-            .forEach(({
-                name
-            }) => {
+            .forEach(({name}) => {
                 row
                     .insertCell()
                     .innerHTML = `<h4>${name}</h4>`;
@@ -96,14 +100,14 @@ function formatAsTable(data) {
 }
 
 function formatAsCsvBlob(data) {
-    if (!data) return;
+    if (!data) 
+        return;
     const out = [];
     // headers
-    out.push(data.metaData.map(({
-        name
-    }) => name).join(','));
+    out.push(data.metaData.map(({name}) => name).join(','));
     // rows
-    data.rows
+    data
+        .rows
         .map(row => {
             for (let i = 0; i < row.length; ++i) {
                 if (data.metaData[i].dbType === DB_TYPES.DB_TYPE_BLOB) {
@@ -114,17 +118,15 @@ function formatAsCsvBlob(data) {
         })
         .map(row => row.join(','))
         .forEach(str => (out.push(str)));
-    return new Blob([out.join('\n')], {
-        type: 'text/csv'
-    });
+    return new Blob([out.join('\n')], {type: 'text/csv'});
 }
 
 function doQuery() {
     queryData = null;
     output.innerHTML = 'Loading...';
     let result;
-    if (statement.value) {
-        result = lib.queryDatabaseSql(statement.value);
+    if (statement.getValue()) {
+        result = lib.queryDatabaseSql(statement.getValue());
     } else {
         const databaseName = name
             .value

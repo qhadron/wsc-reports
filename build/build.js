@@ -35,15 +35,19 @@ function build(file) {
             .transform('babelify')
             .bundle()
             .on('error', err => {
-                const {
-                    filename,
-                    loc: {
-                        line,
-                        column
-                    },
-                    codeFrame
-                } = err;
-                console.error(`Error in file ${filename}:${line}:${column}`, codeFrame);
+                try {
+                    const {
+                        filename,
+                        loc: {
+                            line,
+                            column
+                        },
+                        codeFrame
+                    } = err;
+                    console.error(`Error in file ${filename}:${line}:${column}`, codeFrame);
+                } catch (e) {
+                    console.error(err);
+                }
             })
             .pipe(fs.createWriteStream(dest));
     }

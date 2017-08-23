@@ -3,9 +3,7 @@ const router = express.Router();
 const db = require('../../../db');
 const now = require('performance-now');
 const fileType = require('file-type');
-const {
-    PassThrough
-} = require('stream');
+const {PassThrough} = require('stream');
 
 const ResultSetToJsonStream = require('../lib/ResultSetToJsonStream');
 const cache = require('../lib/cache');
@@ -40,7 +38,7 @@ router.get('/_static/:key([0-9a-z\-]+)$', (req, res, next) => {
 
         function ondata(chunk) {
             const result = fileType(chunk);
-            if (!result)
+            if (!result) 
                 return;
             console.log(`Type of ${key} is ${result.mime}`);
             res.setHeader('Content-Type', result.mime);
@@ -60,27 +58,28 @@ router.get('/:table/', (req, res) => {
         const table = req.params.table;
         console.log(`Requested ${table}`)
         const params = req.query;
-        let {
-            query,
-            args
-        } = buildQuery(table, params);
+        let {query, args} = buildQuery(table, params);
 
-        return handleQuery(query, args, req, res);
+        return handleQuery(query, args, req, res).catch(err => handleError(req, res, err));
 
-    })().catch(err => handleError(req, res, err));
+    })();
 });
 
 router.get('/', (req, res) => {
-    Promise.resolve().then(() => {
+    Promise
+        .resolve()
+        .then(() => {
             console.log(`Executing statement`);
             const query = req.query.q;
 
-            return handleQuery(query, [], req, res);
-        })
-        .catch(err => handleError(req, res, err));
+            return handleQuery(query, [], req, res).catch(err => handleError(req, res, err));
+        });
 });
 
 async function handleQuery(query, args, req, res) {
+    if (!query) {
+        throw new Error('Query is not defined');
+    }
     let conn;
     res.setHeader('Content-Type', 'application/json');
 
@@ -88,15 +87,18 @@ async function handleQuery(query, args, req, res) {
     const pool = await db;
     conn = await pool.getConnection();
 
-
     let result;
     console.log("Connected, executing query: \n", query, args);
     const queryStart = now();
     try {
-        result = await conn.execute(query, args, {
+        result = await conn
+            .execute(query, args, {
             resultSet: true,
             extendedMetaData: true
-        });
+        })
+            .catch(err => {
+                throw err
+            });
     } catch (err) {
         conn.close();
         err.message = `Error in query: ${err}`;
@@ -109,9 +111,7 @@ async function handleQuery(query, args, req, res) {
     });
     outStream.on('error', err => {
         console.error(err);
-        err = Object.assign(err, {
-            message: `Error writing stream :${err}`
-        });
+        err = Object.assign(err, {message: `Error writing stream :${err}`});
         // try to fix json format
         res.write(`], "error":`);
         res.write(JSON.stringify(err.message));
@@ -131,9 +131,7 @@ async function handleQuery(query, args, req, res) {
 function handleError(req, res, err) {
     console.error(err);
     res.status(err.status || 500);
-    res.write(JSON.stringify({
-        error: err.message
-    }));
+    res.write(JSON.stringify({error: err.message}));
     res.send();
 }
 
@@ -151,11 +149,7 @@ function buildQuery(table, params) {
     const args = Object
         .keys(params)
         .map(key => params[key]);
-    return {
-        query,
-        args
-    };
+    return {query, args};
 }
-
 
 module.exports = router;
