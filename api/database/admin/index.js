@@ -2,10 +2,9 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../../db');
 const now = require('performance-now');
-const fileType = require('file-type');
-const {PassThrough} = require('stream');
 
 const ResultSetToJsonStream = require('../lib/ResultSetToJsonStream');
+const FileTypeStream = require('../lib/FileTypeStream');
 const cache = require('../lib/cache');
 
 function createUrlFromKey(base, key) {
@@ -33,19 +32,15 @@ router.get('/_static/:key([0-9a-z\-]+)$', (req, res, next) => {
 
         console.log(`Reading ${key}`);
         const startTime = now();
-        // listen for first chunk of file data to get filetype
-        const dupe = stream.pipe(new PassThrough());
-
-        function ondata(chunk) {
-            const result = fileType(chunk);
-            if (!result) 
-                return;
-            console.log(`Type of ${key} is ${result.mime}`);
-            res.setHeader('Content-Type', result.mime);
-            res.setHeader('Content-Disposition', `inline; filename=${key}.${result.ext}`);
-        };
-        dupe.once('data', ondata);
         stream
+            .pipe(new FileTypeStream())
+            .on('filetype', result => {
+                if (!result) 
+                    return;
+                console.log(`Type of ${key} is ${result.mime}`);
+                res.setHeader('Content-Type', result.mime);
+                res.setHeader('Content-Disposition', `inline; filename=${key}.${result.ext}`);
+            })
             .pipe(res)
             .on('finish', () => {
                 console.log(`Read ${key} in ${now() - startTime}ms`)
