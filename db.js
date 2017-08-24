@@ -1,4 +1,4 @@
-const dbConfig = require('./dbconfig.js');
+const dbConfig = require('./config/dbconfig.js');
 const oracledb = require('oracledb');
 
 oracledb.fetchAsString = [oracledb.CLOB];

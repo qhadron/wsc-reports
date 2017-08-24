@@ -6,10 +6,7 @@ const path = require('path');
 const port = process.env.PORT || 3000;
 
 try {
-    const {
-        ssl_key_path,
-        ssl_cert_path
-    } = require('./serverconfig');
+    const {ssl_key_path, ssl_cert_path} = require('./config/serverconfig');
 
     https.createServer({
         key: fs.readFileSync(ssl_key_path),

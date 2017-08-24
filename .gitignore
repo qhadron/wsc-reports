@@ -60,14 +60,11 @@ typings/
 # generated files
 static/js/*.js
 
-#dbconfig
-**/dbconfig.js
-
 #swap files
 **/*~
 
 # cache files
 **/cache/
 
-# server configuration
-serverconfig.js
+# config files
+config/
