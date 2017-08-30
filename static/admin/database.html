@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Query Database</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/vendor/semantic-ui/semantic.min.css">
+    <script src="/vendor/ace-builds/src-min-noconflict/ace.js" defer></script>
+    <script src="/vendor/jquery/dist/jquery.min.js" defer></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js" defer></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/dataTables.semanticui.min.js" defer></script>
+    <script src="/vendor/semantic-ui/semantic.min.js" defer></script>
+    <script src="js/database.js" defer></script>
+    <style>
+        .output {
+            overflow-y: auto;
+        }
+
+        .ace_editor {
+            width: 100%;
+            height: 20em;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="ui container vertically divided grid">
+        <div class="ui row">
+            <div class="column">
+                <label>SQL Statement</label><textarea id="statement"></textarea>
+            </div>
+        </div>
+        <div class="ui row">
+            <button id="query" class="ui primary button">Query</button>
+            <button id="csv" class="ui primary button">Download As CSV</button>
+        </div>
+        <content class="output ui row"></content>
+    </div>
+</body>
+
+</html>

@@ -1,3 +1,9 @@
 [submodule "static/lib/ace-builds"]
 	path = static/lib/ace-builds
 	url = https://github.com/ajaxorg/ace-builds.git
+[submodule "static/lib/semantic-ui"]
+	path = static/lib/semantic-ui
+	url = https://github.com/Semantic-Org/Semantic-UI-CSS.git
+[submodule "static/lib/jquery"]
+	path = static/lib/jquery
+	url = https://github.com/jquery/jquery-dist.git

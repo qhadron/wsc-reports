@@ -6,8 +6,10 @@
         "ui/",
         "build/",
         "nodemon.json",
-        "api/database/cache",
-        "js/"
+        "server/api/database/cache",
+        "js/",
+        "dist/"
     ],
+    "ext": "js json",
     "verbose": true
 }

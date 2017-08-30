@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Editor</title>
+    <style type="text/css" media="screen">
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            background: #c4c4c4;
+        }
+
+        .editor-container {
+            width: 40%;
+            height: 80%;
+            margin: 4em;
+            text-align: center;
+        }
+
+        .editor {
+            width: 100%;
+            height: 100%;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="editor-container">
+        <h2>MS ACCESS SQL</h2>
+        <pre id="sqlserver" class="editor">
+SELECT * from HYDEX_3_IMAGES;
+</pre>
+    </div>
+    <div class="editor-container">
+        <h2>ORACLE SQL</h2>
+        <pre id="sql" class="editor">
+</pre>
+    </div>
+
+    <script src="/vendor/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/convert.js"></script>
+</body>
+
+</html>

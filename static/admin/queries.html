@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Query Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/vendor/semantic-ui/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/dataTables.semanticui.min.css">
+    <script src="/vendor/jquery/dist/jquery.min.js" defer></script>
+    <script src="/vendor/semantic-ui/semantic.min.js" defer></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js" defer></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/dataTables.semanticui.min.js" defer></script>
+    <script src="js/queries.js" defer></script>
+    <style>
+        .output {
+            padding: 1em;
+            overflow: auto;
+        }
+
+        summary>h1 {
+            display: inline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="ui container vertically divided grid">
+        <div class="row">
+            <div class="grid">
+                <div class="row">
+                    <h1>Query List</h1>
+                </div>
+                <div class="row">
+                    <div id="query-list-output" class="output"></div>
+                    <div class="ui segment centered">
+                        <div class="ui two column padded centered grid">
+                            <div class="centered row">
+                                <button id="addrow" class="ui centered button"><i class="plus icon"></i>Add row</button>
+                                <button id="submit" class="ui centered primary button">Submit Changes</button>
+                                <button id="refresh" class="ui right floated button">Refresh</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="ui container">
+                <h1>Query Output</h1>
+                <div id="query-output" class="ui grid container output">
+                    <div class="row">
+                        <h1 class="ui hidden title">Query Results for <span class='id'></span></h1>
+                    </div>
+                    <div class="row">
+                        <div class="out"></div>
+                    </div>
+                    <div class="ui loader"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

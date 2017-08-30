@@ -14,9 +14,9 @@ export function sendJSON(url, obj, options = {}) {
         options['method'] = 'GET';
     }
     if (options['method'] === 'GET') {
-        url = url instanceof URL ?
-            url :
-            new URL(url, window.location.href);
+        url = url instanceof URL
+            ? url
+            : new URL(url, window.location.href);
         for (const key in obj) {
             url
                 .searchParams
@@ -45,27 +45,39 @@ function processDatabaseReturn(res) {
 
 /**
  *
- * @param {string} tablename Name of table to query
- * @param {*} conditions  Key value pairs that all must be true
- */
-export function queryDatabaseTable(tablename, conditions) {
-    const url = new URL(`/api/database/admin/${tablename.toUpperCase()}`, window.location);
-    return sendJSON(url, conditions).then(processDatabaseReturn);
-}
-
-/**
- *
  * @param {string} statement
  */
 export function queryDatabaseSql(statement) {
-    const url = new URL(`/api/database/admin/`, window.location);
+    const url = new URL(`/api/database/admin/sql/`, window.location);
     return sendJSON(url, {
         q: statement
-    }).then(processDatabaseReturn);
+    }, {method: 'POST'}).then(processDatabaseReturn);
+}
+
+export function queryDatabaseList() {
+    const url = new URL(`/api/database/`, window.location.href);
+    return sendJSON(url).then(r => r.json());
+}
+
+export function addQuery(query) {
+    const url = new URL('/api/database/admin/manage/', window.location.href);
+    return sendJSON(url, {
+        query: query
+    }, {method: 'PUT'}).then(r => r.json());
+}
+
+export function removeQuery(id) {
+    const url = new URL(`/api/database/admin/manage/${id}/`, window.location.href);
+    return fetch(url, {method: 'DELETE'}).then(r => r.json());
+}
+export function queryDatabaseQueryId(id) {
+    const url = new URL(`/api/database/${id}/`, window.location.href);
+    return fetch(url).then(processDatabaseReturn);
 }
 
 export default {
     sendJSON,
     queryDatabaseSql,
-    queryDatabaseTable
+    queryDatabaseList,
+    queryDatabaseQueryId
 };

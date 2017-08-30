@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/vendor/semantic-ui/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/dataTables.semanticui.min.css">
+    <style>
+        body {
+            padding: 1.5em 0;
+        }
+
+        .dt-table {
+            overflow-x: auto;
+        }
+
+        .output {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .hidden {
+            display: none!important;
+        }
+
+    </style>
+    <script src="/vendor/jquery/dist/jquery.min.js" defer></script>
+    <script src="/vendor/semantic-ui/semantic.min.js" defer></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js" defer></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/dataTables.semanticui.min.js" defer></script>
+    <script src="js/display.js" type="application/javascript" defer></script>
+</head>
+
+<body>
+    <div class="ui padded vertically divided grid container">
+        <div class="row">
+            <div class="ui center aligned text container">
+                <h1 class="ui header">Hydex Data Extraction</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column" id="errors"></div>
+        </div>
+        <div class="row">
+            <div class="ui column">
+                <div id="output">
+                </div>
+                <div class="ui page dimmer active">
+                    <div class="ui large text loader">
+                        Loading Results
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <template id="table">
+        <div class="ui segment grid">
+            <div class="ui row">
+                <div class="column">
+                    <h1 class="title"></h1>
+                </div>
+            </div>
+            <div class="ui row">
+                <div class="column" style="overflow-x: auto">
+                    <div class="content output"></div>
+                </div>
+            </div>
+        </div>
+    </template>
+</body>
+
+</html>

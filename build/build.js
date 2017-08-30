@@ -1,6 +1,7 @@
-const fs = require('fs');
-const browserify = require('browserify');
-const watchify = require('watchify');
+import fs from 'fs';
+import path from 'path';
+import browserify from 'browserify';
+import watchify from 'watchify';
 
 const IS_DEV = process.env.NODE_ENV === "development";
 
@@ -19,41 +20,60 @@ if (IS_DEV) {
     Object.assign(browserifyConfig, {debug: true});
 }
 
-fs.readdir('js/', (err, items) => {
-    items = items.filter(str => /\.js$/.exec(str));
-    console.log('Found js files: ', items);
-    items.forEach(file => build(`js/${file}`));
-});
+function mkdirp(dir) {
+    let cur = path.resolve(dir);
+    try {
+        fs.mkdirSync(dir);
+    } catch (e) {
+        switch (e.code) {
+            case 'ENOENT':
+                mkdirp(path.dirname(cur));
+                mkdirp(cur);
+                break;
+        }
+    }
+}
 
-function build(file) {
-    const b = browserify(file, browserifyConfig);
-    const dest = `static/${file}`;
+const locations = [
+    {
+        path: 'js/admin',
+        dest: 'static/admin/js'
+    }, {
+        path: 'js/public',
+        dest: 'static/public/js'
+    }
+];
+
+locations.forEach(({path: folder, dest}) => fs.readdir(folder, (err, items) => {
+    if (err) 
+        return;
+    items = items.filter(str => /\.jsx?$/.exec(str));
+    items = items.map(item => path.resolve(folder, item));
+    console.log('Found js files: ', items);
+    items.forEach(item => build(item, path.resolve(dest, path.basename(item))));
+}));
+
+function build(input, output) {
+    const b = browserify(input, browserifyConfig);
+    mkdirp(path.dirname(output));
 
     function bundle() {
-        console.log("Writing to ", dest);
+        console.log("Writing to ", output);
         b
             .transform('babelify')
             .bundle()
             .on('error', err => {
                 try {
-                    const {
-                        filename,
-                        loc: {
-                            line,
-                            column
-                        },
-                        codeFrame
-                    } = err;
-                    console.error(`Error in file ${filename}:${line}:${column}`, codeFrame);
+                    console.error(`Error in file ${err.filename}:${err.line}:${err.column}`, err.codeFrame);
                 } catch (e) {
                     console.error(err);
                 }
             })
-            .pipe(fs.createWriteStream(dest));
+            .pipe(fs.createWriteStream(output));
     }
 
     if (process.env.NODE_ENV === "development") {
-        console.log("Watching for changes in ", file);
+        console.log("Watching for changes in ", input);
         b.on('update', bundle);
     }
     b.on('log', msg => {

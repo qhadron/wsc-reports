@@ -58,7 +58,8 @@ typings/
 .env
 
 # generated files
-static/js/*.js
+static/admin/js/*.js
+static/public/js/*.js
 
 #swap files
 **/*~
@@ -66,5 +67,8 @@ static/js/*.js
 # cache files
 **/cache/
 
-# config files
+# dist
+dist/
+
+# configuration
 config/
