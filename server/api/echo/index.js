@@ -1,3 +1,5 @@
+const debug = require('debug')('api:echo');
+
 module.exports = function (req, res) {
     res.setHeader('Content-Type', 'application/json');
     let source;
@@ -11,7 +13,7 @@ module.exports = function (req, res) {
         default:
             break;
     }
-    console.log(`Received `, source);
+    debug(`Received `, source);
     let copy = Object.assign({}, source);
     copy.time = new Date();
     copy.status = `OK`;

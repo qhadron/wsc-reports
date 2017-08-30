@@ -7,18 +7,21 @@ const FileTypeStream = require('../lib/FileTypeStream');
 const cache = require('../lib/cache');
 
 const staticRouter = express.Router();
+const Debug = require('debug');
+const debug_static = Debug('api:database:lib:query:static');
+const debug_query = Debug('api:database:query:query');
 
 staticRouter.get('/_static/:key([0-9a-z\-]+)$', (req, res, next) => {
     (async() => {
 
         const key = req.params.key;
-        console.log(`Requesting file ${key}`);
+        debug_static(`Requesting file ${key}`);
 
         if (!cache.has(key)) {
-            console.log(`File not found...`);
+            debug_static(`File not found...`);
             return next();
         }
-        console.log(`Waiting for reading ${key}`);
+        debug_static(`Waiting for reading ${key}`);
         const stream = await cache.get(key);
 
         if (!stream) {
@@ -27,20 +30,20 @@ staticRouter.get('/_static/:key([0-9a-z\-]+)$', (req, res, next) => {
 
         res.status(200);
 
-        console.log(`Reading ${key}`);
+        debug_static(`Reading ${key}`);
         const startTime = now();
         stream
             .pipe(new FileTypeStream())
             .on('filetype', result => {
                 if (!result) 
                     return;
-                console.log(`Type of ${key} is ${result.mime}`);
+                debug_static(`Type of ${key} is ${result.mime}`);
                 res.setHeader('Content-Type', result.mime);
                 res.setHeader('Content-Disposition', `inline; filename=${key}${result && '.' + result.ext || ''}`);
             })
             .pipe(res)
             .on('finish', () => {
-                console.log(`Read ${key} in ${now() - startTime}ms`)
+                debug_static(`Read ${key} in ${now() - startTime}ms`)
             });
     })().catch(err => handleError(req, res, err));
 });
@@ -55,12 +58,12 @@ async function handleQuery(query, args, req, res) {
     let conn;
     res.setHeader('Content-Type', 'application/json');
 
-    console.log("Waiting for connection...");
+    debug_query("Waiting for connection...");
     const pool = await db;
     conn = await pool.getConnection();
 
     let result;
-    console.log("Connected, executing query: \n", query, args);
+    debug_query("Connected, executing query: \n", query, args);
     const queryStart = now();
     try {
         result = await conn
@@ -78,7 +81,7 @@ async function handleQuery(query, args, req, res) {
     }
 
     const outStream = new ResultSetToJsonStream(result.resultSet, cache, createUrlFromKey.bind(null, req.baseUrl), () => {
-        console.log(`Finished reading all query data in ${now() - queryStart}ms`);
+        debug_query(`Finished reading all query data in ${now() - queryStart}ms`);
         conn.close();
     });
     outStream.on('error', err => {
@@ -96,7 +99,7 @@ async function handleQuery(query, args, req, res) {
     });
     outStream.pipe(res);
     res.on('finish', () => {
-        console.log(`Finished executing and parsing query in ${now() - queryStart}ms`);
+        debug_query(`Finished executing and parsing query in ${now() - queryStart}ms`);
     });
 }
 

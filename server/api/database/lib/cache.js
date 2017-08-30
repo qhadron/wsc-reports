@@ -4,9 +4,19 @@ const crypto = require('crypto');
 const now = require('performance-now');
 const NodeCache = require('node-cache');
 
-const CACHE_ROOT = path.resolve(__dirname, '..', 'cache/');
-const TTL = 60 * 5; // 5 minutes
+const debug = require('debug')('api:database:cache');
 
+const CACHE_ROOT = path.resolve(__dirname, '..', 'cache/');
+
+// life of files
+const TTL = 60 * 10; // 5 minutes
+
+/** Delay before writing stream to file in millis
+ *  Having a delay here lowers priority of writing to a file
+ */
+const WRITE_DELAY = 200;
+
+const delayPromise = (ms) => new Promise((r, _) => setTimeout(r, ms));
 function mkdirp(dir) {
     dir
         .split(path.sep)
@@ -32,9 +42,11 @@ class FileWrapper {
         this._name = name;
         this._currentOperation = Promise.resolve();
     }
-    write(inputStream) {
+
+    write(inputStream, delay) {
         this._currentOperation = this
             ._currentOperation
+            .then(() => delayPromise(delay))
             .then(() => new Promise((resolve, _) => {
                 this._lastUpdated = now();
                 const stream = fs.createWriteStream(this._path);
@@ -42,7 +54,7 @@ class FileWrapper {
                 inputStream
                     .pipe(stream)
                     .on('finish', () => {
-                        console.log(`Wrote ${this._name} to ${this._path} in ${now() - startTime}`);
+                        debug(`Wrote ${this._name} to ${this._path} in ${now() - startTime}`);
                         resolve();
                     });
             }));
@@ -102,14 +114,13 @@ class Cache {
     }
 
     _cleanup(key, record) {
-        console.log(`Cleaning up ${record}`, record);
+        debug(`Cleaning up ${record}`, record);
         record.cleanup();
     }
 
     add(key, stream, {ttl} = {
         ttl: this._TTL
     }) {
-
         let entry = this._getEntry(key);
         if (!entry) {
             entry = new FileWrapper(this._CACHE_ROOT, key);
@@ -118,10 +129,10 @@ class Cache {
                 .set(key, entry, ttl);
         } else {
             entry.resetTimer();
-            console.log(`${key} already in cache; overwriting`);
+            debug(`${key} already in cache; overwriting`);
         }
 
-        return entry.write(stream)
+        return entry.write(stream, WRITE_DELAY);
     }
 
     get(key) {

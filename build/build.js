@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import browserify from 'browserify';
 import watchify from 'watchify';
+const debug = require('debug')('js-build');
 
 const IS_DEV = process.env.NODE_ENV === "development";
 
@@ -49,7 +50,7 @@ locations.forEach(({path: folder, dest}) => fs.readdir(folder, (err, items) => {
         return;
     items = items.filter(str => /\.jsx?$/.exec(str));
     items = items.map(item => path.resolve(folder, item));
-    console.log('Found js files: ', items);
+    debug('Found js files: ', items);
     items.forEach(item => build(item, path.resolve(dest, path.basename(item))));
 }));
 
@@ -58,7 +59,7 @@ function build(input, output) {
     mkdirp(path.dirname(output));
 
     function bundle() {
-        console.log("Writing to ", output);
+        debug("Writing to ", output);
         b
             .transform('babelify')
             .bundle()
@@ -73,11 +74,11 @@ function build(input, output) {
     }
 
     if (process.env.NODE_ENV === "development") {
-        console.log("Watching for changes in ", input);
+        debug("Watching for changes in ", input);
         b.on('update', bundle);
     }
     b.on('log', msg => {
-        console.log(msg);
+        debug(msg);
     });
 
     bundle();

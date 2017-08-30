@@ -1,6 +1,7 @@
 const {Readable} = require('stream');
 const crypto = require('crypto');
 const oracledb = require('oracledb');
+const debug = require('debug')('api:database:lib:resultsetstream');
 
 // const MAX_RESULT_COUNT = 10;
 const MAX_RESULT_COUNT = Number.POSITIVE_INFINITY;
@@ -45,7 +46,7 @@ module.exports = class ResultSetToJsonStream extends Readable {
                     acc.push(idx);
                 return acc;
             }, []);
-        console.log('Created json stream');
+        debug('Created json stream');
         this.on('error', this._cleanup);
     }
     _writeHeader() {
@@ -72,7 +73,7 @@ module.exports = class ResultSetToJsonStream extends Readable {
             .getRows(fetchCount)
             .then(rows => {
                 this._fetching = false;
-                console.log(`Fetched ${rows.length} rows`);
+                debug(`Fetched ${rows.length} rows`);
                 this._fetchedRows = rows;
                 if (this._fetchedRows.length < fetchCount) {
                     this._fetchedAll = true;
@@ -112,6 +113,7 @@ module.exports = class ResultSetToJsonStream extends Readable {
             if (!this._writtenFooters) {
                 this._writeFooter();
                 this.push(null);
+                debug('pushed null');
                 if (!this._closed) {
                     this._cleanup();
                 }
@@ -137,8 +139,8 @@ module.exports = class ResultSetToJsonStream extends Readable {
         this._closed = true;
         return Promise
             .all(this._readPromises)
-            .then(() => {
-                console.log('Fetched all rows, closing result set...');
+            .then(() => { //.map(x => delay(1000).then(() => this._cache.add(...x)))).then(() => {
+                debug('read all rows, closing result set...');
                 return this
                     ._resultSet
                     .close();

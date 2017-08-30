@@ -94,7 +94,6 @@ module.exports = class FileTypeStream extends Transform {
                         }
                         break;
                 }
-                console.log(`Original: ${JSON.stringify(old)}, New: ${JSON.stringify(type)}, ext: ${res && res.ext || null}`);
             }
             return done(res);
         });
