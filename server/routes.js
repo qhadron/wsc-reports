@@ -36,10 +36,12 @@ router.use('/api', api);
 
 // mount admin files authentication
 if (process.env.NODE_ENV !== "development") {
+    const localhost = [/127.0.0.1/, /localhost/, /::1/];
     router.use('/admin', (req, res, next) => {
-        const localhost = ['127.0.0.1', 'localhost', '::1'];
-        if (!localhost.includes(req.ip)) {
-            return res.sendStatus(403);
+        if (!localhost.find((pattern) => pattern.exec(req.ip))) {
+            return res.send(`
+            Access page on the server at localhost/admin/ 
+            `);
         }
         next();
     })

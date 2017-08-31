@@ -41,7 +41,8 @@
     "server-serve": "node dist/server.js",
     "start-server-prod": "cross-env NODE_ENV=production npm-run-all -s server-build server-serve",
     "start-server-dev": "cross-env NODE_ENV=development nodemon server/server.js --exec babel-node --inspect ",
-    "start": "npm-run-all prod"
+    "start": "npm-run-all prod",
+    "build": "npm-run-all js-build server-build"
   },
   "repository": {
     "type": "git",

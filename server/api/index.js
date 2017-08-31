@@ -8,6 +8,11 @@ const app = express();
 app.disable('etag');
 app.disable('x-powered-by');
 
+const config = require('../config');
+if (config.config.trustProxy) {
+    app.enable('trust proxy');
+}
+
 // body parser
 app.use(bodyParser.json({
     type: [

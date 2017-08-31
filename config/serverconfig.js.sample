@@ -3,4 +3,5 @@ module.exports = {
     ssl_cert_path: `path_to_ssl.crt`, // path to ssl crt file
     host: ``, // server host (can leave empty to bind to all hosts (0.0.0.0 or ::))
     port: ``, // port (defaults to PORT environment variable or 3000 if PORT is unset)
+    trustProxy: false, // set to true if run behind reverse proxy
 }

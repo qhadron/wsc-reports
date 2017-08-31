@@ -1,5 +1,6 @@
 module.exports = {
     user: "", // username for the database connection
     password: "", // password
-    connectString: "" // ODBC connect string
+    connectString: "", // see https://github.com/oracle/node-oracledb/blob/master/doc/api.md#connectionstrings,
+    poolSize: 4, // default pool size (i.e. maxinum number of concurrent requests to the database) see https://github.com/oracle/node-oracledb/blob/master/doc/api.md#numberofthreads
 };
