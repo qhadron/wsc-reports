@@ -7,3 +7,12 @@
 [submodule "static/lib/jquery"]
 	path = static/lib/jquery
 	url = https://github.com/jquery/jquery-dist.git
+[submodule "static/public/vendor/semantic-ui"]
+	path = static/public/vendor/semantic-ui
+	url = https://github.com/Semantic-Org/Semantic-UI-CSS.git
+[submodule "static/public/vendor/jquery"]
+	path = static/public/vendor/jquery
+	url = https://github.com/jquery/jquery-dist.git
+[submodule "static/public/vendor/ace-builds"]
+	path = static/public/vendor/ace-builds
+	url = https://github.com/ajaxorg/ace-builds.git
