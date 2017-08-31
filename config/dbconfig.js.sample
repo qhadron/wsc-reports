@@ -1,5 +1,5 @@
 module.exports = {
-    user: "",
-    password: "",
-    connectString: ""
+    user: "", // username for the database connection
+    password: "", // password
+    connectString: "" // ODBC connect string
 };

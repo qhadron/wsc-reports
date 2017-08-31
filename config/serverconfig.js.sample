@@ -1,4 +1,6 @@
 module.exports = {
-    ssl_key_path: `path_to_ssl.key`,
-    ssl_cert_path: `path_to_ssl.crt`
+    ssl_key_path: `path_to_ssl.key`, // path to ssl private key
+    ssl_cert_path: `path_to_ssl.crt`, // path to ssl crt file
+    host: ``, // server host (can leave empty to bind to all hosts (0.0.0.0 or ::))
+    port: ``, // port (defaults to PORT environment variable or 3000 if PORT is unset)
 }
